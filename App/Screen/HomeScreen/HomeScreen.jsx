@@ -42,7 +42,9 @@ export default function HomeScreen() {
         <SearchBar searchedLocation={(location) => console.log(location)} />
       </View>
       <AppMapView />
-      <PlaceListView />
+      <View style={styles.placeListContainer}>
+        {placeList && <PlaceListView placeList={placeList} />}
+      </View>
     </View>
   );
 }
@@ -54,5 +56,11 @@ const styles = StyleSheet.create({
     padding: 10,
     width: "100%",
     paddingHorizontal: 20,
+  },
+  placeListContainer: {
+    position: "absolute",
+    bottom: 0,
+    zIndex: 10,
+    width: "100%",
   },
 });

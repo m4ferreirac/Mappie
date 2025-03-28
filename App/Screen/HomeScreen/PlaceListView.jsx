@@ -1,10 +1,20 @@
-import { View, Text } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import React from "react";
+import PlaceItem from "./PlaceItem";
 
-export default function PlaceListView() {
+export default function PlaceListView({ placeList }) {
   return (
     <View>
-      <Text>PlaceListView</Text>
+      <FlatList
+        data={placeList}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        renderItem={({ item, index }) => (
+          <View key={index}>
+            <PlaceItem place={item} />
+          </View>
+        )}
+      />
     </View>
   );
 }
