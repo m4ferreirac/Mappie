@@ -5,6 +5,7 @@ import Header from "./Header";
 import SearchBar from "./SearchBar";
 import { UserLocationContext } from "../../Context/UserLocationContext";
 import GlobalApi from "../../Utils/GlobalApi";
+import PlaceListView from "./PlaceListView";
 
 export default function HomeScreen() {
   const { location, setlocation } = useContext(UserLocationContext);
@@ -41,6 +42,7 @@ export default function HomeScreen() {
         <SearchBar searchedLocation={(location) => console.log(location)} />
       </View>
       <AppMapView />
+      <PlaceListView />
     </View>
   );
 }
