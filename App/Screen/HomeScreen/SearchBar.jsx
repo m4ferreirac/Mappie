@@ -8,7 +8,6 @@ export default function SearchBar() {
       <GooglePlacesAutocomplete
         placeholder="Search EV Charging Station"
         onPress={(data, details = null) => {
-          // 'details' is provided when fetchDetails = true
           console.log(data, details);
         }}
         query={{
