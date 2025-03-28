@@ -9,6 +9,7 @@ import * as SecureStore from "expo-secure-store";
 import { NavigationContainer } from "@react-navigation/native";
 import TabNavigation from "./App/Navigations/TabNavigation";
 import * as Location from "expo-location";
+import "react-native-get-random-values";
 import { UserLocationContext } from "./App/Context/UserLocationContext";
 
 SplashScreen.preventAutoHideAsync();
@@ -94,6 +95,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 25,
+    paddingTop: 0,
   },
 });
