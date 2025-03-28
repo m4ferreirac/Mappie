@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Button, View } from "react-native";
 import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";

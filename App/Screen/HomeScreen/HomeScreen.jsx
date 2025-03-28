@@ -1,4 +1,9 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import AppMapView from "./AppMapView";
 import Header from "./Header";
@@ -7,9 +12,12 @@ import { UserLocationContext } from "../../Context/UserLocationContext";
 import GlobalApi from "../../Utils/GlobalApi";
 import PlaceListView from "./PlaceListView";
 import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
+import { MaterialIcons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 
 export default function HomeScreen() {
-  const { location, setLocation } = useContext(UserLocationContext);
+  const { location, setLocation, userLocation } =
+    useContext(UserLocationContext);
   const [placeList, setPlaceList] = useState([]);
   const [selectedMaker, setSelectedMarker] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +56,33 @@ export default function HomeScreen() {
       .finally(() => setLoading(false));
   };
 
+  // Função para obter a localização atual do usuário
+  const resetToUserLocation = async () => {
+    setLoading(true);
+
+    try {
+      // Se tivermos a localização real do usuário em contexto, usamos ela
+      if (userLocation) {
+        setLocation(userLocation);
+      }
+      // Caso contrário, tentamos obter a localização atual
+      else {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status === "granted") {
+          let currentLocation = await Location.getCurrentPositionAsync({});
+          setLocation({
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao obter localização atual:", error);
+      setLoading(false);
+    }
+  };
+
   return (
     <SelectMarkerContext.Provider value={{ selectedMaker, setSelectedMarker }}>
       <View>
@@ -61,6 +96,14 @@ export default function HomeScreen() {
               })
             }
           />
+          <View style={styles.refreshButtonContainer}>
+            <TouchableOpacity
+              style={styles.refreshButton}
+              onPress={resetToUserLocation}
+            >
+              <MaterialIcons name="refresh" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {loading ? (
@@ -97,5 +140,25 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 10,
     width: "100%",
+  },
+  refreshButtonContainer: {
+    alignItems: "flex-end",
+    marginTop: 10,
+  },
+  refreshButton: {
+    backgroundColor: "#4285F4",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
