@@ -1,6 +1,7 @@
 import { View, Text, Image, Dimensions } from "react-native";
 import React from "react";
 import Colors from "../../Utils/Colors";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const GOOGLE_API = process.env.EXPO_PUBLIC_GOOGLE_API;
 
@@ -37,6 +38,8 @@ export default function PlaceItem({ place }) {
       />
       <View style={{ padding: 15 }}>
         <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
           style={{
             fontSize: 23,
             fontFamily: "Outfit-SemiBold",
@@ -45,6 +48,8 @@ export default function PlaceItem({ place }) {
           {place.displayName?.text}
         </Text>
         <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
           style={{
             color: Colors.GRAY,
             fontFamily: "Outfit-Regular",
@@ -52,6 +57,46 @@ export default function PlaceItem({ place }) {
         >
           {place?.shortFormattedAddress}
         </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <View>
+            <Text
+              style={{
+                fontSize: 16,
+                color: Colors.GRAY,
+                fontFamily: "Outfit-Regular",
+              }}
+            >
+              Connectors
+            </Text>
+            <Text
+              style={{
+                color: Colors.BLACK,
+                fontSize: 20,
+                fontFamily: "Outfit-SemiBold",
+              }}
+            >
+              {place?.evChargeOptions?.connectorCount} Points
+            </Text>
+          </View>
+          <View
+            style={{
+              marginTop: 5,
+              padding: 12,
+              backgroundColor: Colors.PRIMARY,
+              borderRadius: 6,
+              paddingHorizontal: 14,
+            }}
+          >
+            <FontAwesome name="location-arrow" size={25} color="white" />
+          </View>
+        </View>
       </View>
     </View>
   );

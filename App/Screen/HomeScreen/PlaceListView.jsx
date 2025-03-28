@@ -1,16 +1,40 @@
-import { View, Text, FlatList } from "react-native";
-import React from "react";
+import { View, FlatList, Dimensions } from "react-native";
+import React, { useContext, useEffect, useRef } from "react";
 import PlaceItem from "./PlaceItem";
+import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
+import { Animated } from "react-native-maps";
 
 export default function PlaceListView({ placeList }) {
+  const { setSelectedMarker, selectedMaker } = useContext(SelectMarkerContext);
+  const flatListRef = useRef(null);
+  const screenWidth = Dimensions.get("window").width;
+
+  useEffect(() => {
+    selectedMaker && scrollToIndex(selectedMaker);
+  }, [selectedMaker]);
+
+  const scrollToIndex = (index) => {
+    flatListRef.current?.scrollToIndex({ animated: true, index });
+  };
+
+  const getItemLayout = (_, index) => ({
+    length: Dimensions.get("window").width,
+    offset: Dimensions.get("window").width * index,
+    index,
+  });
+
   return (
-    <View>
+    <View style={{ alignItems: "center" }}>
       <FlatList
         data={placeList}
-        horizontal={true}
+        horizontal
+        pagingEnabled
+        ref={flatListRef}
+        getItemLayout={getItemLayout}
         showsHorizontalScrollIndicator={false}
-        renderItem={({ item, index }) => (
-          <View key={index}>
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={{ width: screenWidth, alignItems: "center" }}>
             <PlaceItem place={item} />
           </View>
         )}
