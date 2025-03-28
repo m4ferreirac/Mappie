@@ -44,11 +44,11 @@ export default function LoginScreen() {
       />
       <View style={{ padding: 20 }}>
         <Text style={styles.heading}>
-          Your Ultimate EV Charging {"\n"}Station Finder App
+          Your Ultimate EV Charging Station Finder App
         </Text>
         <Text style={styles.desc}>
-          Find EV Charging station near you, plan trip and {"\n"}so much more in
-          just one click
+          Find EV Charging station near you, plan trip and so much more in just
+          one click
         </Text>
         <TouchableOpacity style={styles.button} onPress={onPress}>
           <Text
