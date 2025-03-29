@@ -1,10 +1,11 @@
 import {
   ActivityIndicator,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import AppMapView from "./AppMapView";
 import Header from "./Header";
 import SearchBar from "./SearchBar";
@@ -14,6 +15,8 @@ import PlaceListView from "./PlaceListView";
 import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import Colors from "../../Utils/Colors";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const { location, setLocation, userLocation } =
@@ -21,6 +24,20 @@ export default function HomeScreen() {
   const [placeList, setPlaceList] = useState([]);
   const [selectedMaker, setSelectedMarker] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clearSearchInput, setClearSearchInput] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // Add a refresh key state
+
+  // Use useFocusEffect to refresh data whenever the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      if (location) {
+        setLoading(true);
+        getNearByPlace();
+      }
+      // Force refresh PlaceListView by updating the key
+      setRefreshKey((prevKey) => prevKey + 1);
+    }, [location]),
+  );
 
   useEffect(() => {
     if (location) {
@@ -56,17 +73,15 @@ export default function HomeScreen() {
       .finally(() => setLoading(false));
   };
 
-  // Função para obter a localização atual do usuário
   const resetToUserLocation = async () => {
     setLoading(true);
+    setClearSearchInput(true);
+    setRefreshKey((prevKey) => prevKey + 1); // Force refresh when resetting location
 
     try {
-      // Se tivermos a localização real do usuário em contexto, usamos ela
       if (userLocation) {
         setLocation(userLocation);
-      }
-      // Caso contrário, tentamos obter a localização atual
-      else {
+      } else {
         let { status } = await Location.requestForegroundPermissionsAsync();
 
         if (status === "granted") {
@@ -80,21 +95,31 @@ export default function HomeScreen() {
     } catch (error) {
       console.error("Erro ao obter localização atual:", error);
       setLoading(false);
+    } finally {
+      setTimeout(() => setClearSearchInput(false), 100);
     }
+  };
+
+  const refreshData = () => {
+    setLoading(true);
+    getNearByPlace();
+    setRefreshKey((prevKey) => prevKey + 1); // Force refresh PlaceListView
   };
 
   return (
     <SelectMarkerContext.Provider value={{ selectedMaker, setSelectedMarker }}>
-      <View>
+      <View style={{ flex: 1, height: "100%" }}>
         <View style={styles.headerContainer}>
           <Header />
           <SearchBar
-            searchedLocation={(location) =>
+            searchedLocation={(location) => {
               setLocation({
                 latitude: location.lat,
                 longitude: location.lng,
-              })
-            }
+              });
+              setRefreshKey((prevKey) => prevKey + 1); // Force refresh on search
+            }}
+            clearInput={clearSearchInput}
           />
           <View style={styles.refreshButtonContainer}>
             <TouchableOpacity
@@ -107,17 +132,37 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#0000ff"
-            style={{ marginTop: 80 }}
-          />
+          <View
+            style={{
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ActivityIndicator size="large" color={Colors.PRIMARY} />
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: "Outfit-Regular",
+                marginTop: 10,
+              }}
+            >
+              Loading...
+            </Text>
+          </View>
         ) : (
           <>
-            {placeList.length > 0 ? <AppMapView placeList={placeList} /> : null}
+            {placeList.length > 0 ? (
+              <AppMapView placeList={placeList} key={`map-${refreshKey}`} />
+            ) : null}
             <View style={styles.placeListContainer}>
               {placeList.length > 0 ? (
-                <PlaceListView placeList={placeList} />
+                <PlaceListView
+                  placeList={placeList}
+                  key={`list-${refreshKey}`}
+                  onRefresh={refreshData}
+                />
               ) : null}
             </View>
           </>

@@ -1,7 +1,14 @@
-import { View, FlatList, Dimensions } from "react-native";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { View, FlatList, Dimensions, RefreshControl } from "react-native";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import PlaceItem from "./PlaceItem";
 import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
+import Colors from "../../Utils/Colors";
 import {
   getFirestore,
   collection,
@@ -11,50 +18,77 @@ import {
 } from "firebase/firestore";
 import { app } from "../../Utils/FirebaseConfig";
 import { useUser } from "@clerk/clerk-expo";
+import { useFocusEffect } from "@react-navigation/native";
 
-export default function PlaceListView({ placeList }) {
+export default function PlaceListView({ placeList, onRefresh }) {
   const { setSelectedMarker, selectedMaker } = useContext(SelectMarkerContext);
   const flatListRef = useRef(null);
   const screenWidth = Dimensions.get("window").width;
-
-  useEffect(() => {
-    selectedMaker && scrollToIndex(selectedMaker);
-  }, [selectedMaker]);
-
-  const scrollToIndex = (index) => {
-    flatListRef.current?.scrollToIndex({ animated: true, index });
-  };
-
-  const getItemLayout = (_, index) => ({
-    length: Dimensions.get("window").width,
-    offset: Dimensions.get("window").width * index,
-    index,
-  });
+  const [refreshing, setRefreshing] = useState(false);
 
   const db = getFirestore(app);
   const { user } = useUser();
   const [favList, setFavList] = useState([]);
 
   useEffect(() => {
+    selectedMaker && scrollToIndex(selectedMaker);
+  }, [selectedMaker]);
+
+  useEffect(() => {
     user && getFav();
   }, [user]);
 
+  useFocusEffect(
+    useCallback(() => {
+      user && getFav();
+    }, [user]),
+  );
+
+  const scrollToIndex = (index) => {
+    flatListRef.current?.scrollToIndex({ animated: true, index });
+  };
+
+  const getItemLayout = (_, index) => ({
+    length: screenWidth,
+    offset: screenWidth * index,
+    index,
+  });
+
   const getFav = async () => {
     setFavList([]);
-    const q = query(
-      collection(db, "Favorites"),
-      where("email", "==", user?.primaryEmailAddress?.emailAddress),
-    );
+    try {
+      const q = query(
+        collection(db, "Favorites"),
+        where("email", "==", user?.primaryEmailAddress?.emailAddress),
+      );
 
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      setFavList((favList) => [...favList, doc.data()]);
-    });
+      const querySnapshot = await getDocs(q);
+      const favorites = [];
+      querySnapshot.forEach((doc) => {
+        favorites.push(doc.data());
+      });
+      setFavList(favorites);
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+    }
   };
 
   const isFav = (place) => {
-    const result = favList.find((item) => item.place.id == place.id);
+    const result = favList.find((item) => item.place.id === place.id);
     return result ? true : false;
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await getFav();
+
+      if (onRefresh) {
+        onRefresh();
+      }
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -67,6 +101,16 @@ export default function PlaceListView({ placeList }) {
         getItemLayout={getItemLayout}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[Colors.PRIMARY]}
+            tintColor={Colors.PRIMARY}
+            title="Refreshing..."
+            titleColor={Colors.PRIMARY}
+          />
+        }
         renderItem={({ item }) => (
           <View style={{ width: screenWidth, alignItems: "center" }}>
             <PlaceItem
