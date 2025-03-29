@@ -156,11 +156,7 @@ export default function HomeScreen() {
             ) : null}
             <View style={styles.placeListContainer}>
               {placeList.length > 0 ? (
-                <PlaceListView
-                  placeList={placeList}
-                  key={`list-${refreshKey}`}
-                  onRefresh={refreshData}
-                />
+                <PlaceListView placeList={placeList} />
               ) : null}
             </View>
           </>

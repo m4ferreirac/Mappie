@@ -20,11 +20,10 @@ import { app } from "../../Utils/FirebaseConfig";
 import { useUser } from "@clerk/clerk-expo";
 import { useFocusEffect } from "@react-navigation/native";
 
-export default function PlaceListView({ placeList, onRefresh }) {
+export default function PlaceListView({ placeList }) {
   const { setSelectedMarker, selectedMaker } = useContext(SelectMarkerContext);
   const flatListRef = useRef(null);
   const screenWidth = Dimensions.get("window").width;
-  const [refreshing, setRefreshing] = useState(false);
 
   const db = getFirestore(app);
   const { user } = useUser();
@@ -78,19 +77,6 @@ export default function PlaceListView({ placeList, onRefresh }) {
     return result ? true : false;
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await getFav();
-
-      if (onRefresh) {
-        onRefresh();
-      }
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
   return (
     <View style={{ alignItems: "center" }}>
       <FlatList
@@ -101,16 +87,6 @@ export default function PlaceListView({ placeList, onRefresh }) {
         getItemLayout={getItemLayout}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={[Colors.PRIMARY]}
-            tintColor={Colors.PRIMARY}
-            title="Refreshing..."
-            titleColor={Colors.PRIMARY}
-          />
-        }
         renderItem={({ item }) => (
           <View style={{ width: screenWidth, alignItems: "center" }}>
             <PlaceItem
