@@ -8,6 +8,7 @@ import {
   Platform,
   ToastAndroid,
   Linking,
+  StyleSheet,
 } from "react-native";
 import React from "react";
 import Colors from "../../Utils/Colors";
@@ -24,6 +25,7 @@ export default function PlaceItem({ place, isFav, markedFav }) {
 
   const db = getFirestore(app);
   const { user } = useUser();
+
   const onSetFav = async (place) => {
     await setDoc(doc(db, "Favorites", place.id.toString()), {
       place: place,
@@ -38,6 +40,7 @@ export default function PlaceItem({ place, isFav, markedFav }) {
       });
     }
   };
+
   const onRemoveFav = async (placeId) => {
     await deleteDoc(doc(db, "Favorites", placeId.toString()));
     markedFav();
@@ -60,9 +63,7 @@ export default function PlaceItem({ place, isFav, markedFav }) {
           "Destination",
       );
 
-      // For Android, try multiple formats
       if (Platform.OS === "android") {
-        // Try opening directly in Google Maps app
         const googleMapsUrl = `google.navigation:q=${lat},${lng}`;
 
         Linking.canOpenURL(googleMapsUrl)
@@ -70,7 +71,6 @@ export default function PlaceItem({ place, isFav, markedFav }) {
             if (supported) {
               Linking.openURL(googleMapsUrl);
             } else {
-              // Try standard geo intent
               const geoUrl = `geo:${lat},${lng}?q=${lat},${lng}(${label})`;
 
               Linking.canOpenURL(geoUrl)
@@ -78,14 +78,12 @@ export default function PlaceItem({ place, isFav, markedFav }) {
                   if (geoSupported) {
                     Linking.openURL(geoUrl);
                   } else {
-                    // Fallback to browser
                     Linking.openURL(
                       `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
                     );
                   }
                 })
                 .catch(() => {
-                  // Final fallback
                   Linking.openURL(
                     `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
                   );
@@ -93,13 +91,11 @@ export default function PlaceItem({ place, isFav, markedFav }) {
             }
           })
           .catch(() => {
-            // Fallback to browser if anything fails
             Linking.openURL(
               `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
             );
           });
       } else {
-        // iOS handling
         const url = `maps://app?daddr=${lat},${lng}&ll=${lat},${lng}&q=${label}`;
 
         Linking.canOpenURL(url)
@@ -119,14 +115,12 @@ export default function PlaceItem({ place, isFav, markedFav }) {
           });
       }
     } else {
-      // Handle address-only navigation
       const address = encodeURIComponent(
         place?.shortFormattedAddress || place?.formattedAddress || "",
       );
 
       if (address) {
         if (Platform.OS === "android") {
-          // For Android, try geo URI with the address
           const geoUrl = `geo:0,0?q=${address}`;
 
           Linking.canOpenURL(geoUrl)
@@ -134,7 +128,6 @@ export default function PlaceItem({ place, isFav, markedFav }) {
               if (supported) {
                 Linking.openURL(geoUrl);
               } else {
-                // Fallback to browser
                 Linking.openURL(
                   `https://www.google.com/maps/search/?api=1&query=${address}`,
                 );
@@ -146,7 +139,6 @@ export default function PlaceItem({ place, isFav, markedFav }) {
               );
             });
         } else {
-          // iOS
           Linking.openURL(`maps://app?q=${address}`).catch(() => {
             Linking.openURL(
               `https://www.google.com/maps/search/?api=1&query=${address}`,
@@ -163,14 +155,7 @@ export default function PlaceItem({ place, isFav, markedFav }) {
   };
 
   return (
-    <View
-      style={{
-        backgroundColor: Colors.WHITE,
-        margin: 5,
-        borderRadius: 10,
-        width: Dimensions.get("screen").width * 0.9,
-      }}
-    >
+    <View style={styles.container}>
       <View>
         <Image
           source={
@@ -185,93 +170,40 @@ export default function PlaceItem({ place, isFav, markedFav }) {
                 }
               : require("../../../assets/images/login-bg.png")
           }
-          style={{
-            width: "100%",
-            borderRadius: 10,
-            height: 150,
-          }}
+          style={styles.image}
         />
         {!isFav ? (
           <Pressable
-            style={{
-              position: "absolute",
-              margin: 5,
-              right: 0,
-            }}
+            style={styles.favoriteButton}
             onPress={() => onSetFav(place)}
           >
             <Ionicons name="heart-outline" size={40} color={Colors.WHITE} />
           </Pressable>
         ) : (
           <Pressable
-            style={{
-              position: "absolute",
-              margin: 5,
-              right: 0,
-            }}
+            style={styles.favoriteButton}
             onPress={() => onRemoveFav(place.id)}
           >
             <Ionicons name="heart-sharp" size={40} color="red" />
           </Pressable>
         )}
       </View>
-      <View style={{ padding: 15 }}>
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={{
-            fontSize: 23,
-            fontFamily: "Outfit-SemiBold",
-          }}
-        >
+      <View style={styles.detailsContainer}>
+        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>
           {place.displayName?.text}
         </Text>
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={{
-            color: Colors.GRAY,
-            fontFamily: "Outfit-Regular",
-          }}
-        >
+        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.address}>
           {place?.shortFormattedAddress}
         </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: 10,
-          }}
-        >
+        <View style={styles.footerContainer}>
           <View>
-            <Text
-              style={{
-                fontSize: 16,
-                color: Colors.GRAY,
-                fontFamily: "Outfit-Regular",
-              }}
-            >
-              Connectors
-            </Text>
-            <Text
-              style={{
-                color: Colors.BLACK,
-                fontSize: 20,
-                fontFamily: "Outfit-SemiBold",
-              }}
-            >
+            <Text style={styles.connectorsLabel}>Connectors</Text>
+            <Text style={styles.connectorsCount}>
               {place?.evChargeOptions?.connectorCount} Points
             </Text>
           </View>
           <Pressable
-            style={{
-              marginTop: 5,
-              padding: 12,
-              backgroundColor: Colors.PRIMARY,
-              borderRadius: 6,
-              paddingHorizontal: 14,
-            }}
+            style={styles.directionButton}
             onPress={() => onDirectionClick()}
           >
             <FontAwesome name="location-arrow" size={25} color="white" />
@@ -281,3 +213,56 @@ export default function PlaceItem({ place, isFav, markedFav }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.WHITE,
+    margin: 5,
+    borderRadius: 10,
+    width: Dimensions.get("screen").width * 0.9,
+  },
+  image: {
+    width: "100%",
+    borderRadius: 10,
+    height: 150,
+  },
+  favoriteButton: {
+    position: "absolute",
+    margin: 5,
+    right: 0,
+  },
+  detailsContainer: {
+    padding: 15,
+  },
+  title: {
+    fontSize: 23,
+    fontFamily: "Outfit-SemiBold",
+  },
+  address: {
+    color: Colors.GRAY,
+    fontFamily: "Outfit-Regular",
+  },
+  footerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  connectorsLabel: {
+    fontSize: 16,
+    color: Colors.GRAY,
+    fontFamily: "Outfit-Regular",
+  },
+  connectorsCount: {
+    color: Colors.BLACK,
+    fontSize: 20,
+    fontFamily: "Outfit-SemiBold",
+  },
+  directionButton: {
+    marginTop: 5,
+    padding: 12,
+    backgroundColor: Colors.PRIMARY,
+    borderRadius: 6,
+    paddingHorizontal: 14,
+  },
+});

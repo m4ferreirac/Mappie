@@ -106,7 +106,7 @@ export default function HomeScreen() {
 
   return (
     <SelectMarkerContext.Provider value={{ selectedMaker, setSelectedMarker }}>
-      <View style={{ flex: 1, height: "100%" }}>
+      <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Header />
           <SearchBar
@@ -130,24 +130,9 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <View
-            style={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.PRIMARY} />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: "Outfit-Regular",
-                marginTop: 10,
-              }}
-            >
-              Loading...
-            </Text>
+            <Text style={styles.loadingText}>Loading...</Text>
           </View>
         ) : (
           <>
@@ -167,6 +152,10 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    height: "100%",
+  },
   headerContainer: {
     position: "absolute",
     zIndex: 10,
@@ -199,5 +188,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  loadingContainer: {
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: "Outfit-Regular",
+    marginTop: 10,
   },
 });

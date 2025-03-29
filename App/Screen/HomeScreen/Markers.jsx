@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Image, Platform, View } from "react-native";
+import { Image, Platform, View, StyleSheet } from "react-native";
 import { Marker } from "react-native-maps";
 import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
 
@@ -19,20 +19,10 @@ export default function Markers({ index, place }) {
           : {})}
       >
         {Platform.OS === "ios" && (
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 10,
-            }}
-          >
+          <View style={styles.markerContainer}>
             <Image
               source={require("../../../assets/images/marker.png")}
-              style={{
-                width: 60,
-                height: 60,
-                resizeMode: "contain",
-              }}
+              style={styles.markerImage}
             />
           </View>
         )}
@@ -40,3 +30,16 @@ export default function Markers({ index, place }) {
     )
   );
 }
+
+const styles = StyleSheet.create({
+  markerContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  markerImage: {
+    width: 60,
+    height: 60,
+    resizeMode: "contain",
+  },
+});

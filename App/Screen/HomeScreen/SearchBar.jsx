@@ -35,42 +35,44 @@ export default function SearchBar({ searchedLocation, clearInput }) {
           key: GOOGLE_API,
           language: "en",
         }}
-        styles={{
-          container: {
-            flex: 1,
-          },
-          textInput: {
-            height: 44,
-            backgroundColor: "transparent",
-            fontSize: 16,
-            borderRadius: 0,
-          },
-          listView: {
-            backgroundColor: Colors.WHITE,
-            borderRadius: 6,
-            marginTop: 5,
-            elevation: 2,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.15,
-            shadowRadius: 3,
-          },
-          row: {
-            padding: 13,
-            flexDirection: "row",
-          },
-          description: {
-            fontSize: 15,
-          },
-          separator: {
-            height: 0.5,
-            backgroundColor: "#EAEAEA",
-          },
-        }}
+        styles={autoCompleteStyles}
       />
     </View>
   );
 }
+
+const autoCompleteStyles = {
+  container: {
+    flex: 1,
+  },
+  textInput: {
+    height: 44,
+    backgroundColor: "transparent",
+    fontSize: 16,
+    borderRadius: 0,
+  },
+  listView: {
+    backgroundColor: Colors.WHITE,
+    borderRadius: 6,
+    marginTop: 5,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+  },
+  row: {
+    padding: 13,
+    flexDirection: "row",
+  },
+  description: {
+    fontSize: 15,
+  },
+  separator: {
+    height: 0.5,
+    backgroundColor: "#EAEAEA",
+  },
+};
 
 const styles = StyleSheet.create({
   container: {

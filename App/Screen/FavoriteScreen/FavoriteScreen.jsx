@@ -5,6 +5,7 @@ import {
   FlatList,
   Dimensions,
   RefreshControl,
+  StyleSheet,
 } from "react-native";
 import React, { useState } from "react";
 import Colors from "../../Utils/Colors";
@@ -61,46 +62,17 @@ export default function FavoriteScreen() {
   const renderContent = () => {
     if (loading) {
       return (
-        <View
-          style={{
-            height: 500,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <View style={styles.contentContainer}>
           <ActivityIndicator size={"large"} color={Colors.PRIMARY} />
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: "Outfit-Regular",
-              marginTop: 10,
-            }}
-          >
-            Loading...
-          </Text>
+          <Text style={styles.loadingText}>Loading...</Text>
         </View>
       );
     }
 
     if (favList.length === 0) {
       return (
-        <View
-          style={{
-            height: 500,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: "Outfit-Regular",
-            }}
-          >
-            No favorites yet
-          </Text>
+        <View style={styles.contentContainer}>
+          <Text style={styles.emptyText}>No favorites yet</Text>
           <RefreshControl
             refreshing={loading}
             onRefresh={getFav}
@@ -116,7 +88,7 @@ export default function FavoriteScreen() {
         onRefresh={getFav}
         refreshing={loading}
         renderItem={({ item }) => (
-          <View style={{ width: screenWidth, alignItems: "center" }}>
+          <View style={styles.placeItemContainer}>
             <PlaceItem place={item.place} isFav={true} markedFav={getFav} />
           </View>
         )}
@@ -125,11 +97,40 @@ export default function FavoriteScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ marginTop: 10, marginBottom: 15 }}>
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
         <Header />
       </View>
       {renderContent()}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  headerContainer: {
+    marginTop: 10,
+    marginBottom: 15,
+  },
+  contentContainer: {
+    height: 500,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: "Outfit-Regular",
+    marginTop: 10,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: "Outfit-Regular",
+  },
+  placeItemContainer: {
+    width: Dimensions.get("window").width,
+    alignItems: "center",
+  },
+});

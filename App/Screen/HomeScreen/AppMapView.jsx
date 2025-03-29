@@ -30,10 +30,7 @@ export default function AppMapView({ placeList }) {
             >
               <Image
                 source={require("../../../assets/images/car-marker.png")}
-                style={{
-                  width: 25,
-                  height: 50,
-                }}
+                style={styles.carMarker}
               />
             </Marker>
           ) : null}
@@ -49,8 +46,15 @@ export default function AppMapView({ placeList }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   map: {
     width: "100%",
     height: "100%",
+  },
+  carMarker: {
+    width: 25,
+    height: 50,
   },
 });
