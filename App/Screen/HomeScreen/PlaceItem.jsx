@@ -51,16 +51,6 @@ export default function PlaceItem({ place, isFav, markedFav }) {
   };
 
   const onDirectionClick = () => {
-    // Debug the location data
-    console.log(
-      "Navigating with data:",
-      JSON.stringify({
-        lat: place?.location?.latitude,
-        lng: place?.location?.longitude,
-        address: place?.shortFormattedAddress,
-      }),
-    );
-
     if (place?.location?.latitude && place?.location?.longitude) {
       const lat = place.location.latitude;
       const lng = place.location.longitude;
