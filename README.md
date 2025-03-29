@@ -1,5 +1,7 @@
 # 🔌 Mappie - Localizador de Carregadores para Veículos Elétricos
 
+**Realizado por:** João Ferreira nº2024501, Pedro Aleixo nº2023349
+
 **Mappie** é uma aplicação mobile que ajuda utilizadores a encontrar facilmente estações de carregamento para veículos elétricos próximas ou em locais específicos.
 
 <p align="center">
