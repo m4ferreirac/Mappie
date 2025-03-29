@@ -51,24 +51,63 @@ export default function PlaceItem({ place, isFav, markedFav }) {
   };
 
   const onDirectionClick = () => {
-    const url = Platform.select({
-      ios:
-        "maps:" +
-        place?.location?.latitude +
-        "," +
-        place?.location?.longitude +
-        "?q=" +
-        place?.formattedAddress,
-      android:
-        "geo:" +
-        place?.location?.latitude +
-        "," +
-        place?.location?.longitude +
-        "?q=" +
-        place?.formattedAddress,
-    });
+    if (place?.location?.latitude && place?.location?.longitude) {
+      const lat = place.location.latitude;
+      const lng = place.location.longitude;
+      const label = encodeURIComponent(
+        place?.displayName?.text ||
+          place?.shortFormattedAddress ||
+          "Destination",
+      );
 
-    Linking.openURL(url);
+      let url;
+
+      if (Platform.OS === "ios") {
+        url = `maps://app?daddr=${lat},${lng}&ll=${lat},${lng}&q=${label}`;
+      } else {
+        url = `google.navigation:q=${lat},${lng}&mode=d`;
+      }
+
+      Linking.canOpenURL(url)
+        .then((supported) => {
+          if (supported) {
+            Linking.openURL(url);
+          } else {
+            const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dir_action=navigate`;
+            Linking.openURL(browserUrl);
+          }
+        })
+        .catch((err) => {
+          console.error("An error occurred", err);
+          const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+          Linking.openURL(browserUrl);
+        });
+    } else {
+      const address = encodeURIComponent(
+        place?.shortFormattedAddress || place?.formattedAddress || "",
+      );
+
+      if (address) {
+        let url;
+
+        if (Platform.OS === "ios") {
+          url = `maps://app?q=${address}`;
+        } else {
+          url = `geo:0,0?q=${address}`;
+        }
+
+        Linking.openURL(url).catch(() => {
+          Linking.openURL(
+            `https://www.google.com/maps/search/?api=1&query=${address}`,
+          );
+        });
+      } else {
+        Alert.alert(
+          "Navigation Error",
+          "Cannot navigate to this location due to missing address information.",
+        );
+      }
+    }
   };
 
   return (
