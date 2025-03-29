@@ -1,5 +1,14 @@
 import React from "react";
-import { Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  Platform,
+} from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import Colors from "../../Utils/Colors";
 import { useOAuth } from "@clerk/clerk-expo";
@@ -9,6 +18,8 @@ import { FontAwesome } from "@expo/vector-icons";
 
 WebBrowser.maybeCompleteAuthSession();
 
+const { height } = Dimensions.get("window");
+
 export default function LoginScreen() {
   useWarmUpBrowser();
 
@@ -17,6 +28,9 @@ export default function LoginScreen() {
   });
   const { startOAuthFlow: startFacebookOAuthFlow } = useOAuth({
     strategy: "oauth_facebook",
+  });
+  const { startOAuthFlow: startAppleOAuthFlow } = useOAuth({
+    strategy: "oauth_apple",
   });
 
   const onPressGoogle = async () => {
@@ -41,56 +55,89 @@ export default function LoginScreen() {
     }
   };
 
+  const onPressApple = async () => {
+    try {
+      const { createdSessionId, setActive } = await startAppleOAuthFlow();
+      if (createdSessionId) {
+        setActive({ session: createdSessionId });
+      }
+    } catch (err) {
+      console.error("Apple OAuth error", err);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Header />
       </View>
 
-      <View style={styles.contentContainer}>
-        <Image
-          source={require("../../../assets/images/login-bg.png")}
-          style={styles.bgImage}
-        />
-        <View style={styles.textContainer}>
-          <Text style={styles.heading}>
-            Your Ultimate EV Charging Station Finder App
-          </Text>
-          <Text style={styles.desc}>
-            Find EV Charging station near you, plan trip and so much more in
-            just one click
-          </Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.contentContainer}>
+          <Image
+            source={require("../../../assets/images/login-bg.png")}
+            style={styles.bgImage}
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.heading}>
+              Your Ultimate EV Charging Station Finder App
+            </Text>
+            <Text style={styles.desc}>
+              Find EV Charging station near you, plan trip and so much more in
+              just one click
+            </Text>
 
-          <TouchableOpacity style={styles.button} onPress={onPressGoogle}>
-            <FontAwesome
-              name="google"
-              size={20}
-              color={Colors.WHITE}
-              style={styles.buttonIcon}
-            />
-            <Text style={styles.buttonText}>Login with Google</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={onPressGoogle}>
+              <FontAwesome
+                name="google"
+                size={20}
+                color={Colors.WHITE}
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.buttonText}>Login with Google</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, styles.facebookButton]}
-            onPress={onPressFacebook}
-          >
-            <FontAwesome
-              name="facebook"
-              size={22}
-              color={Colors.WHITE}
-              style={styles.buttonIcon}
-            />
-            <Text style={styles.buttonText}>Login with Facebook</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.facebookButton]}
+              onPress={onPressFacebook}
+            >
+              <FontAwesome
+                name="facebook"
+                size={22}
+                color={Colors.WHITE}
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.buttonText}>Login with Facebook</Text>
+            </TouchableOpacity>
 
-          <Text style={styles.privacyText}>
-            By continuing, you agree to our{"\n"}
-            <Text style={styles.privacyLink}>Terms of Service</Text> and{" "}
-            <Text style={styles.privacyLink}>Privacy Policy</Text>
-          </Text>
+            {Platform.OS === "ios" && (
+              <TouchableOpacity
+                style={[styles.button, styles.appleButton]}
+                onPress={onPressApple}
+              >
+                <FontAwesome
+                  name="apple"
+                  size={22}
+                  color={Colors.WHITE}
+                  style={styles.buttonIcon}
+                />
+                <Text style={styles.buttonText}>Login with Apple</Text>
+              </TouchableOpacity>
+            )}
+
+            <Text
+              style={[
+                styles.privacyText,
+                Platform.OS === "ios" ? {} : styles.androidPrivacyText,
+              ]}
+            >
+              By continuing, you agree to our{"\n"}
+              <Text style={styles.privacyLink}>Terms of Service</Text> and{" "}
+              <Text style={styles.privacyLink}>Privacy Policy</Text>
+            </Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -101,19 +148,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   headerContainer: {
-    padding: 10,
-    width: "100%",
     paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 5,
   },
   contentContainer: {
-    flex: 1,
     alignItems: "center",
-    paddingTop: 20,
   },
   bgImage: {
     width: "100%",
     height: 260,
-    objectFit: "contain",
+    resizeMode: "contain",
   },
   textContainer: {
     padding: 20,
@@ -154,8 +199,12 @@ const styles = StyleSheet.create({
   },
   facebookButton: {
     backgroundColor: "#4267B2",
+    marginBottom: Platform.OS === "ios" ? 0 : 15,
+  },
+  appleButton: {
+    backgroundColor: "#000",
     marginTop: 15,
-    marginBottom: 20,
+    marginBottom: 15,
   },
   buttonIcon: {
     marginRight: 10,
@@ -171,7 +220,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Outfit-Regular",
     fontSize: 13,
-    marginTop: 10,
+    marginTop: 5,
+    paddingHorizontal: 20,
+  },
+  androidPrivacyText: {
+    marginTop: 5,
   },
   privacyLink: {
     color: Colors.PRIMARY,
