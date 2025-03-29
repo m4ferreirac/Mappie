@@ -25,16 +25,14 @@ export default function HomeScreen() {
   const [selectedMaker, setSelectedMarker] = useState([]);
   const [loading, setLoading] = useState(true);
   const [clearSearchInput, setClearSearchInput] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0); // Add a refresh key state
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Use useFocusEffect to refresh data whenever the screen is focused
   useFocusEffect(
     useCallback(() => {
       if (location) {
         setLoading(true);
         getNearByPlace();
       }
-      // Force refresh PlaceListView by updating the key
       setRefreshKey((prevKey) => prevKey + 1);
     }, [location]),
   );
@@ -76,7 +74,7 @@ export default function HomeScreen() {
   const resetToUserLocation = async () => {
     setLoading(true);
     setClearSearchInput(true);
-    setRefreshKey((prevKey) => prevKey + 1); // Force refresh when resetting location
+    setRefreshKey((prevKey) => prevKey + 1);
 
     try {
       if (userLocation) {
@@ -103,7 +101,7 @@ export default function HomeScreen() {
   const refreshData = () => {
     setLoading(true);
     getNearByPlace();
-    setRefreshKey((prevKey) => prevKey + 1); // Force refresh PlaceListView
+    setRefreshKey((prevKey) => prevKey + 1);
   };
 
   return (
@@ -117,7 +115,7 @@ export default function HomeScreen() {
                 latitude: location.lat,
                 longitude: location.lng,
               });
-              setRefreshKey((prevKey) => prevKey + 1); // Force refresh on search
+              setRefreshKey((prevKey) => prevKey + 1);
             }}
             clearInput={clearSearchInput}
           />
