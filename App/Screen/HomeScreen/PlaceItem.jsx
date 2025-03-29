@@ -51,6 +51,16 @@ export default function PlaceItem({ place, isFav, markedFav }) {
   };
 
   const onDirectionClick = () => {
+    // Debug the location data
+    console.log(
+      "Navigating with data:",
+      JSON.stringify({
+        lat: place?.location?.latitude,
+        lng: place?.location?.longitude,
+        address: place?.shortFormattedAddress,
+      }),
+    );
+
     if (place?.location?.latitude && place?.location?.longitude) {
       const lat = place.location.latitude;
       const lng = place.location.longitude;
@@ -60,51 +70,103 @@ export default function PlaceItem({ place, isFav, markedFav }) {
           "Destination",
       );
 
-      let url;
+      // For Android, try multiple formats
+      if (Platform.OS === "android") {
+        // Try opening directly in Google Maps app
+        const googleMapsUrl = `google.navigation:q=${lat},${lng}`;
 
-      if (Platform.OS === "ios") {
-        url = `maps://app?daddr=${lat},${lng}&ll=${lat},${lng}&q=${label}`;
+        Linking.canOpenURL(googleMapsUrl)
+          .then((supported) => {
+            if (supported) {
+              Linking.openURL(googleMapsUrl);
+            } else {
+              // Try standard geo intent
+              const geoUrl = `geo:${lat},${lng}?q=${lat},${lng}(${label})`;
+
+              Linking.canOpenURL(geoUrl)
+                .then((geoSupported) => {
+                  if (geoSupported) {
+                    Linking.openURL(geoUrl);
+                  } else {
+                    // Fallback to browser
+                    Linking.openURL(
+                      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+                    );
+                  }
+                })
+                .catch(() => {
+                  // Final fallback
+                  Linking.openURL(
+                    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+                  );
+                });
+            }
+          })
+          .catch(() => {
+            // Fallback to browser if anything fails
+            Linking.openURL(
+              `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+            );
+          });
       } else {
-        url = `google.navigation:q=${lat},${lng}&mode=d`;
-      }
+        // iOS handling
+        const url = `maps://app?daddr=${lat},${lng}&ll=${lat},${lng}&q=${label}`;
 
-      Linking.canOpenURL(url)
-        .then((supported) => {
-          if (supported) {
-            Linking.openURL(url);
-          } else {
-            const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dir_action=navigate`;
-            Linking.openURL(browserUrl);
-          }
-        })
-        .catch((err) => {
-          console.error("An error occurred", err);
-          const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-          Linking.openURL(browserUrl);
-        });
+        Linking.canOpenURL(url)
+          .then((supported) => {
+            if (supported) {
+              Linking.openURL(url);
+            } else {
+              Linking.openURL(
+                `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+              );
+            }
+          })
+          .catch(() => {
+            Linking.openURL(
+              `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+            );
+          });
+      }
     } else {
+      // Handle address-only navigation
       const address = encodeURIComponent(
         place?.shortFormattedAddress || place?.formattedAddress || "",
       );
 
       if (address) {
-        let url;
+        if (Platform.OS === "android") {
+          // For Android, try geo URI with the address
+          const geoUrl = `geo:0,0?q=${address}`;
 
-        if (Platform.OS === "ios") {
-          url = `maps://app?q=${address}`;
+          Linking.canOpenURL(geoUrl)
+            .then((supported) => {
+              if (supported) {
+                Linking.openURL(geoUrl);
+              } else {
+                // Fallback to browser
+                Linking.openURL(
+                  `https://www.google.com/maps/search/?api=1&query=${address}`,
+                );
+              }
+            })
+            .catch(() => {
+              Linking.openURL(
+                `https://www.google.com/maps/search/?api=1&query=${address}`,
+              );
+            });
         } else {
-          url = `geo:0,0?q=${address}`;
+          // iOS
+          Linking.openURL(`maps://app?q=${address}`).catch(() => {
+            Linking.openURL(
+              `https://www.google.com/maps/search/?api=1&query=${address}`,
+            );
+          });
         }
-
-        Linking.openURL(url).catch(() => {
-          Linking.openURL(
-            `https://www.google.com/maps/search/?api=1&query=${address}`,
-          );
-        });
       } else {
         Alert.alert(
           "Navigation Error",
-          "Cannot navigate to this location due to missing address information.",
+          "Cannot navigate to this location due to missing information.",
         );
       }
     }
