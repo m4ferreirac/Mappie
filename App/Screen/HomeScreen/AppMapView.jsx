@@ -1,6 +1,5 @@
 import { StyleSheet, View, Image, Platform } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import MapViewStyle from "../../Utils/MapViewStyle.json";
 import React, { useContext } from "react";
 import { UserLocationContext } from "../../Context/UserLocationContext";
 import Markers from "./Markers";
@@ -27,7 +26,6 @@ export default function AppMapView({ placeList }) {
       <View style={styles.container}>
         <MapView
           style={styles.map}
-          customMapStyle={MapViewStyle}
           region={{
             latitude: location?.latitude,
             longitude: location?.longitude,

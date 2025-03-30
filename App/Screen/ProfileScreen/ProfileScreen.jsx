@@ -20,7 +20,6 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSignOut = async () => {
-    // Check for internet connectivity before attempting logout
     const netInfoState = await NetInfo.fetch();
 
     if (!netInfoState.isConnected) {
@@ -34,7 +33,6 @@ export default function ProfileScreen() {
 
     setLoading(true);
     try {
-      // Attempt signout with timeout protection
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Logout request timed out")), 10000),
       );
@@ -43,7 +41,6 @@ export default function ProfileScreen() {
     } catch (error) {
       console.error("Error logging out:", error);
 
-      // Show appropriate error message based on error type
       if (
         error.message.includes("Network") ||
         error.message.includes("timed out")
