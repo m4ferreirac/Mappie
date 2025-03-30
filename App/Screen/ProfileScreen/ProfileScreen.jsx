@@ -12,7 +12,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import Colors from "../../Utils/Colors";
 import Header from "../HomeScreen/Header";
-import NetInfo from "@react-native-community/netinfo";
 
 export default function ProfileScreen() {
   const { user } = useUser();

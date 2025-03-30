@@ -20,8 +20,6 @@ import { FontAwesome } from "@expo/vector-icons";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const { height } = Dimensions.get("window");
-
 export default function LoginScreen() {
   useWarmUpBrowser();
   const { signOut } = useAuth();
