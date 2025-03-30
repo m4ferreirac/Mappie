@@ -1,4 +1,4 @@
-import { StyleSheet, View, Image } from "react-native";
+import { StyleSheet, View, Image, Platform } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "../../Utils/MapViewStyle.json";
 import React, { useContext } from "react";
@@ -7,6 +7,20 @@ import Markers from "./Markers";
 
 export default function AppMapView({ placeList }) {
   const { location, setLocation } = useContext(UserLocationContext);
+
+  const getMarkerStyle = () => {
+    if (Platform.OS === "android") {
+      return {
+        width: 20,
+        height: 30,
+      };
+    }
+
+    return {
+      width: 25,
+      height: 50,
+    };
+  };
 
   return (
     location?.latitude && (
@@ -30,7 +44,8 @@ export default function AppMapView({ placeList }) {
             >
               <Image
                 source={require("../../../assets/images/car-marker.png")}
-                style={styles.carMarker}
+                style={getMarkerStyle()}
+                resizeMode="contain"
               />
             </Marker>
           ) : null}
@@ -52,9 +67,5 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
-  },
-  carMarker: {
-    width: 25,
-    height: 50,
   },
 });

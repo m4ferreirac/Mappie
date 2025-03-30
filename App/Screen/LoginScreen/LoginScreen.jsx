@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -8,10 +8,12 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import Colors from "../../Utils/Colors";
-import { useOAuth } from "@clerk/clerk-expo";
+import { useOAuth, useAuth } from "@clerk/clerk-expo";
 import { useWarmUpBrowser } from "../../../hooks/warmUpBrowser";
 import Header from "../HomeScreen/Header";
 import { FontAwesome } from "@expo/vector-icons";
@@ -22,6 +24,8 @@ const { height } = Dimensions.get("window");
 
 export default function LoginScreen() {
   useWarmUpBrowser();
+  const { signOut } = useAuth();
+  const [loadingProvider, setLoadingProvider] = useState(null);
 
   const { startOAuthFlow: startGoogleOAuthFlow } = useOAuth({
     strategy: "oauth_google",
@@ -33,38 +37,51 @@ export default function LoginScreen() {
     strategy: "oauth_apple",
   });
 
-  const onPressGoogle = async () => {
+  const handleAuthFlow = async (provider, startFlow) => {
+    setLoadingProvider(provider);
+
     try {
-      const { createdSessionId, setActive } = await startGoogleOAuthFlow();
+      try {
+        if (signOut) await signOut();
+      } catch (err) {}
+
+      const { createdSessionId, setActive } = await startFlow();
       if (createdSessionId) {
         setActive({ session: createdSessionId });
       }
     } catch (err) {
-      console.error("Google OAuth error", err);
+      let errorMessage = "Login failed. Please try again.";
+
+      if (err.message?.includes("single session mode")) {
+        errorMessage =
+          "There's an issue with your previous session. Please restart the app and try again.";
+      } else if (
+        err.message?.includes("Network") ||
+        err.message?.includes("network")
+      ) {
+        errorMessage =
+          "Network error. Please check your internet connection and try again.";
+      } else if (
+        err.message?.includes("cancelled") ||
+        err.message?.includes("canceled")
+      ) {
+        setLoadingProvider(null);
+        return;
+      } else if (err.message?.includes("timeout")) {
+        errorMessage =
+          "Login request timed out. Please try again when you have a better connection.";
+      }
+
+      Alert.alert("Login Error", errorMessage);
+    } finally {
+      setLoadingProvider(null);
     }
   };
 
-  const onPressFacebook = async () => {
-    try {
-      const { createdSessionId, setActive } = await startFacebookOAuthFlow();
-      if (createdSessionId) {
-        setActive({ session: createdSessionId });
-      }
-    } catch (err) {
-      console.error("Facebook OAuth error", err);
-    }
-  };
-
-  const onPressApple = async () => {
-    try {
-      const { createdSessionId, setActive } = await startAppleOAuthFlow();
-      if (createdSessionId) {
-        setActive({ session: createdSessionId });
-      }
-    } catch (err) {
-      console.error("Apple OAuth error", err);
-    }
-  };
+  const onPressGoogle = () => handleAuthFlow("Google", startGoogleOAuthFlow);
+  const onPressFacebook = () =>
+    handleAuthFlow("Facebook", startFacebookOAuthFlow);
+  const onPressApple = () => handleAuthFlow("Apple", startAppleOAuthFlow);
 
   return (
     <View style={styles.container}>
@@ -87,41 +104,65 @@ export default function LoginScreen() {
               just one click
             </Text>
 
-            <TouchableOpacity style={styles.button} onPress={onPressGoogle}>
-              <FontAwesome
-                name="google"
-                size={20}
-                color={Colors.WHITE}
-                style={styles.buttonIcon}
-              />
-              <Text style={styles.buttonText}>Login with Google</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onPressGoogle}
+              disabled={loadingProvider !== null}
+            >
+              {loadingProvider === "Google" ? (
+                <ActivityIndicator color={Colors.WHITE} size="small" />
+              ) : (
+                <>
+                  <FontAwesome
+                    name="google"
+                    size={20}
+                    color={Colors.WHITE}
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.buttonText}>Login with Google</Text>
+                </>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.button, styles.facebookButton]}
               onPress={onPressFacebook}
+              disabled={loadingProvider !== null}
             >
-              <FontAwesome
-                name="facebook"
-                size={22}
-                color={Colors.WHITE}
-                style={styles.buttonIcon}
-              />
-              <Text style={styles.buttonText}>Login with Facebook</Text>
+              {loadingProvider === "Facebook" ? (
+                <ActivityIndicator color={Colors.WHITE} size="small" />
+              ) : (
+                <>
+                  <FontAwesome
+                    name="facebook"
+                    size={22}
+                    color={Colors.WHITE}
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.buttonText}>Login with Facebook</Text>
+                </>
+              )}
             </TouchableOpacity>
 
             {Platform.OS === "ios" && (
               <TouchableOpacity
                 style={[styles.button, styles.appleButton]}
                 onPress={onPressApple}
+                disabled={loadingProvider !== null}
               >
-                <FontAwesome
-                  name="apple"
-                  size={22}
-                  color={Colors.WHITE}
-                  style={styles.buttonIcon}
-                />
-                <Text style={styles.buttonText}>Login with Apple</Text>
+                {loadingProvider === "Apple" ? (
+                  <ActivityIndicator color={Colors.WHITE} size="small" />
+                ) : (
+                  <>
+                    <FontAwesome
+                      name="apple"
+                      size={22}
+                      color={Colors.WHITE}
+                      style={styles.buttonIcon}
+                    />
+                    <Text style={styles.buttonText}>Login with Apple</Text>
+                  </>
+                )}
               </TouchableOpacity>
             )}
 
@@ -196,6 +237,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    minHeight: 56,
   },
   facebookButton: {
     backgroundColor: "#4267B2",

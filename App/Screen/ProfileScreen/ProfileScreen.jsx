@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import Colors from "../../Utils/Colors";
 import Header from "../HomeScreen/Header";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function ProfileScreen() {
   const { user } = useUser();
@@ -19,11 +20,46 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSignOut = async () => {
+    // Check for internet connectivity before attempting logout
+    const netInfoState = await NetInfo.fetch();
+
+    if (!netInfoState.isConnected) {
+      Alert.alert(
+        "No Internet Connection",
+        "You need an internet connection to log out. Please try again when you're back online.",
+        [{ text: "OK" }],
+      );
+      return;
+    }
+
     setLoading(true);
     try {
-      await signOut();
+      // Attempt signout with timeout protection
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Logout request timed out")), 10000),
+      );
+
+      await Promise.race([signOut(), timeoutPromise]);
     } catch (error) {
       console.error("Error logging out:", error);
+
+      // Show appropriate error message based on error type
+      if (
+        error.message.includes("Network") ||
+        error.message.includes("timed out")
+      ) {
+        Alert.alert(
+          "Logout Failed",
+          "Network error encountered. You may need to restart the app to complete the logout process.",
+          [{ text: "OK" }],
+        );
+      } else {
+        Alert.alert(
+          "Logout Error",
+          "An error occurred during logout. Please try again.",
+          [{ text: "OK" }],
+        );
+      }
     } finally {
       setLoading(false);
     }

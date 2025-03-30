@@ -59,7 +59,7 @@ export default function HomeScreen() {
       },
     };
 
-    GlobalApi.NewNearByPlace(data)
+    GlobalApi.safeFetchNearByPlace(data)
       .then((resp) => {
         if (resp.data?.places?.length > 0) {
           setPlaceList(resp.data.places);
@@ -67,7 +67,6 @@ export default function HomeScreen() {
           setPlaceList([]);
         }
       })
-      .catch((error) => console.error(error))
       .finally(() => setLoading(false));
   };
 
