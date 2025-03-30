@@ -11,11 +11,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import Colors from "../../Utils/Colors";
 import Header from "../HomeScreen/Header";
+import { UserLocationContext } from "../../Context/UserLocationContext";
 
 export default function ProfileScreen() {
   const { user } = useUser();
   const { signOut } = useAuth();
+  const { setLocation } = useContext(UserLocationContext);
   const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setLocation(null);
+    await signOut();
+  };
 
   if (!user) {
     return (
@@ -57,7 +64,7 @@ export default function ProfileScreen() {
 
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={signOut}
+          onPress={handleLogout}
           disabled={loading}
         >
           {loading ? (
