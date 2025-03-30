@@ -22,9 +22,12 @@ import {
   limit,
 } from "firebase/firestore";
 
-SplashScreen.preventAutoHideAsync();
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+// Evita que a splash screen desapareça antes da inicialização
+SplashScreen.preventAutoHideAsync();
+
+// Função para armazenar e recuperar tokens de autenticação de forma segura
 const tokenCache = {
   async getToken(key) {
     try {
@@ -50,12 +53,14 @@ export default function App() {
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Carrega as fontes personalizadas
   const [loaded, error] = useFonts({
     "Outfit-Bold": require("./assets/fonts/Outfit-Bold.ttf"),
     "Outfit-SemiBold": require("./assets/fonts/Outfit-SemiBold.ttf"),
     "Outfit-Regular": require("./assets/fonts/Outfit-Regular.ttf"),
   });
 
+  // Pré-carrega o Firebase e testa a conexão
   const preloadFirebase = async () => {
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Firebase connection timeout")), 8000),
@@ -83,6 +88,7 @@ export default function App() {
     }
   };
 
+  // Função chamada quando a conexão for restaurada
   const handleConnectionRestored = async () => {
     if (!isInitialized) return;
 
@@ -92,6 +98,7 @@ export default function App() {
     const maxTotalTime = 8000;
 
     try {
+      // Obtém a localização do usuário caso ainda não tenha sido definida
       if (!location) {
         const locationPromise = async () => {
           try {
@@ -112,8 +119,8 @@ export default function App() {
         await Promise.race([locationPromise(), locationTimeout]);
       }
 
-      const timeElapsed = Date.now() - startTime;
-      if (timeElapsed < maxTotalTime) {
+      // Aguarda pré-carregar Firebase, respeitando o tempo limite
+      if (Date.now() - startTime < maxTotalTime) {
         await preloadFirebase();
       }
 
@@ -129,6 +136,7 @@ export default function App() {
     }
   };
 
+  // Verifica a conectividade com a internet e tenta restaurar a conexão
   const checkConnectivity = useCallback(async () => {
     setIsCheckingConnection(true);
     try {
@@ -138,6 +146,7 @@ export default function App() {
         if (!isInitialized) {
           setIsConnected(true);
 
+          // Se a localização ainda não foi obtida, solicita permissão e tenta buscar
           if (!location) {
             try {
               let { status } =
@@ -171,6 +180,7 @@ export default function App() {
     }
   }, [location, isInitialized]);
 
+  // Efeito inicial para verificar conectividade
   useEffect(() => {
     async function prepareApp() {
       await checkConnectivity();
@@ -193,6 +203,7 @@ export default function App() {
     };
   }, [checkConnectivity, isConnected]);
 
+  // Gerencia a tela de splash e inicialização do app
   useEffect(() => {
     if ((loaded || error) && appIsReady) {
       SplashScreen.hideAsync().then(() => {
@@ -209,6 +220,7 @@ export default function App() {
     return null;
   }
 
+  // Tela de conexão perdida
   if (isConnected === false) {
     return (
       <View style={styles.container}>
@@ -221,6 +233,7 @@ export default function App() {
     );
   }
 
+  // Renderização principal do app
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <UserLocationContext.Provider value={{ location, setLocation }}>

@@ -19,49 +19,6 @@ export default function ProfileScreen() {
   const { signOut } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const handleSignOut = async () => {
-    const netInfoState = await NetInfo.fetch();
-
-    if (!netInfoState.isConnected) {
-      Alert.alert(
-        "No Internet Connection",
-        "You need an internet connection to log out. Please try again when you're back online.",
-        [{ text: "OK" }],
-      );
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Logout request timed out")), 10000),
-      );
-
-      await Promise.race([signOut(), timeoutPromise]);
-    } catch (error) {
-      console.error("Error logging out:", error);
-
-      if (
-        error.message.includes("Network") ||
-        error.message.includes("timed out")
-      ) {
-        Alert.alert(
-          "Logout Failed",
-          "Network error encountered. You may need to restart the app to complete the logout process.",
-          [{ text: "OK" }],
-        );
-      } else {
-        Alert.alert(
-          "Logout Error",
-          "An error occurred during logout. Please try again.",
-          [{ text: "OK" }],
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (!user) {
     return (
       <View style={styles.loadingContainer}>
@@ -102,7 +59,7 @@ export default function ProfileScreen() {
 
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={handleSignOut}
+          onPress={signOut}
           disabled={loading}
         >
           {loading ? (

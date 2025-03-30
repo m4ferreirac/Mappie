@@ -27,29 +27,56 @@ export default function PlaceItem({ place, isFav, markedFav }) {
   const { user } = useUser();
 
   const onSetFav = async (place) => {
-    await setDoc(doc(db, "Favorites", place.id.toString()), {
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+
+    const userEmail = user.primaryEmailAddress.emailAddress;
+    const placeRef = doc(
+      db,
+      "Favorites",
+      userEmail,
+      "Places",
+      place.id.toString(),
+    );
+
+    await setDoc(placeRef, {
       place: place,
-      email: user?.primaryEmailAddress?.emailAddress,
+      timestamp: new Date(),
     });
+
     markedFav();
+
     if (Platform.OS === "android") {
-      ToastAndroid.show("Added to Favorites", ToastAndroid.TOP);
+      ToastAndroid.show("Added to Favorites", ToastAndroid.SHORT);
     } else {
-      Alert.alert("Success", "Added to Favorites", [{ text: "OK" }], {
-        cancelable: true,
-      });
+      Alert.alert("Success", "Added to Favorites", [{ text: "OK" }]);
     }
   };
 
   const onRemoveFav = async (placeId) => {
-    await deleteDoc(doc(db, "Favorites", placeId.toString()));
-    markedFav();
-    if (Platform.OS === "android") {
-      ToastAndroid.show("Removed from Favorites", ToastAndroid.TOP);
-    } else {
-      Alert.alert("Success", "Removed from Favorites", [{ text: "OK" }], {
-        cancelable: true,
-      });
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+
+    try {
+      const userEmail = user.primaryEmailAddress.emailAddress;
+      const favRef = doc(
+        db,
+        "Favorites",
+        userEmail,
+        "Places",
+        placeId.toString(),
+      );
+
+      await deleteDoc(favRef);
+      markedFav();
+
+      if (Platform.OS === "android") {
+        ToastAndroid.show("Removed from Favorites", ToastAndroid.SHORT);
+      } else {
+        Alert.alert("Success", "Removed from Favorites", [{ text: "OK" }], {
+          cancelable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error removing favorite:", error);
     }
   };
 

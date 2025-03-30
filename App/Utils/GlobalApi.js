@@ -4,6 +4,7 @@ import NetInfo from "@react-native-community/netinfo";
 const GOOGLE_API = process.env.EXPO_PUBLIC_GOOGLE_API;
 const BASE_URL = "https://places.googleapis.com/v1/places:searchNearby";
 
+// Configuração do Axios com timeout e headers para a API do Google Places
 const axiosInstance = axios.create({
   timeout: 10000,
   headers: {
@@ -21,6 +22,7 @@ const axiosInstance = axios.create({
   },
 });
 
+// Verifica a conectividade antes de realizar a requisição
 const checkConnectivityBeforeRequest = async () => {
   const netInfo = await NetInfo.fetch();
   if (!netInfo.isConnected) {
@@ -29,14 +31,17 @@ const checkConnectivityBeforeRequest = async () => {
   return true;
 };
 
+// Faz uma requisição para buscar lugares próximos, com tentativa de reconexão
 const NewNearByPlace = async (data, retryCount = 2) => {
   try {
     await checkConnectivityBeforeRequest();
 
+    // Pequeno atraso antes da requisição para evitar sobrecarga
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     return await axiosInstance.post(BASE_URL, data);
   } catch (error) {
+    // Se a requisição falhar por problemas de conexão, tenta novamente
     if (retryCount > 0) {
       if (
         axios.isAxiosError(error) &&
@@ -44,6 +49,7 @@ const NewNearByPlace = async (data, retryCount = 2) => {
           error.code === "ECONNABORTED" ||
           !error.response)
       ) {
+        // Implementação de um backoff exponencial para retries
         const delay = 1000 * Math.pow(2, 2 - retryCount);
         await new Promise((resolve) => setTimeout(resolve, delay));
 
@@ -55,6 +61,7 @@ const NewNearByPlace = async (data, retryCount = 2) => {
   }
 };
 
+// Função segura para buscar lugares próximos, garantindo tratamento de erro
 const safeFetchNearByPlace = async (data) => {
   try {
     return await NewNearByPlace(data);

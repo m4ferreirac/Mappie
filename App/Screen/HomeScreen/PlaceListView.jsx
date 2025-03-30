@@ -54,17 +54,20 @@ export default function PlaceListView({ placeList }) {
 
   const getFav = async () => {
     setFavList([]);
-    try {
-      const q = query(
-        collection(db, "Favorites"),
-        where("email", "==", user?.primaryEmailAddress?.emailAddress),
-      );
 
-      const querySnapshot = await getDocs(q);
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+
+    try {
+      const userEmail = user.primaryEmailAddress.emailAddress;
+      const userFavoritesRef = collection(db, "Favorites", userEmail, "Places");
+
+      const querySnapshot = await getDocs(userFavoritesRef);
       const favorites = [];
+
       querySnapshot.forEach((doc) => {
         favorites.push(doc.data());
       });
+
       setFavList(favorites);
     } catch (error) {
       console.error("Error fetching favorites:", error);

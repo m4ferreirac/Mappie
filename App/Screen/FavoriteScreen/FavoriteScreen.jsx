@@ -40,17 +40,19 @@ export default function FavoriteScreen() {
     setLoading(true);
     setFavList([]);
 
-    try {
-      const q = query(
-        collection(db, "Favorites"),
-        where("email", "==", user?.primaryEmailAddress?.emailAddress),
-      );
+    if (!user?.primaryEmailAddress?.emailAddress) return;
 
-      const querySnapshot = await getDocs(q);
+    try {
+      const userEmail = user.primaryEmailAddress.emailAddress;
+      const userFavoritesRef = collection(db, "Favorites", userEmail, "Places");
+
+      const querySnapshot = await getDocs(userFavoritesRef);
       const favorites = [];
+
       querySnapshot.forEach((doc) => {
         favorites.push(doc.data());
       });
+
       setFavList(favorites);
     } catch (error) {
       console.error("Error fetching favorites:", error);

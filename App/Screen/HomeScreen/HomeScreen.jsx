@@ -97,12 +97,6 @@ export default function HomeScreen() {
     }
   };
 
-  const refreshData = () => {
-    setLoading(true);
-    getNearByPlace();
-    setRefreshKey((prevKey) => prevKey + 1);
-  };
-
   return (
     <SelectMarkerContext.Provider value={{ selectedMaker, setSelectedMarker }}>
       <View style={styles.container}>
