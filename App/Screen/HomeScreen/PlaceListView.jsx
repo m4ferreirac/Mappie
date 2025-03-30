@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import PlaceItem from "./PlaceItem";
 import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
-import Colors from "../../Utils/Colors";
 import {
   getFirestore,
   collection,
