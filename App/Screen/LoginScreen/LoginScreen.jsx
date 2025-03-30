@@ -6,9 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
   Platform,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
@@ -35,51 +33,17 @@ export default function LoginScreen() {
     strategy: "oauth_apple",
   });
 
-  const handleAuthFlow = async (provider, startFlow) => {
-    setLoadingProvider(provider);
-
-    try {
-      try {
-        if (signOut) await signOut();
-      } catch (err) {}
-
-      const { createdSessionId, setActive } = await startFlow();
-      if (createdSessionId) {
-        setActive({ session: createdSessionId });
-      }
-    } catch (err) {
-      let errorMessage = "Login failed. Please try again.";
-
-      if (err.message?.includes("single session mode")) {
-        errorMessage =
-          "There's an issue with your previous session. Please restart the app and try again.";
-      } else if (
-        err.message?.includes("Network") ||
-        err.message?.includes("network")
-      ) {
-        errorMessage =
-          "Network error. Please check your internet connection and try again.";
-      } else if (
-        err.message?.includes("cancelled") ||
-        err.message?.includes("canceled")
-      ) {
-        setLoadingProvider(null);
-        return;
-      } else if (err.message?.includes("timeout")) {
-        errorMessage =
-          "Login request timed out. Please try again when you have a better connection.";
-      }
-
-      Alert.alert("Login Error", errorMessage);
-    } finally {
-      setLoadingProvider(null);
-    }
-  };
-
-  const onPressGoogle = () => handleAuthFlow("Google", startGoogleOAuthFlow);
+  const onPressGoogle = () =>
+    handleAuthFlow("Google", startGoogleOAuthFlow, signOut, setLoadingProvider);
   const onPressFacebook = () =>
-    handleAuthFlow("Facebook", startFacebookOAuthFlow);
-  const onPressApple = () => handleAuthFlow("Apple", startAppleOAuthFlow);
+    handleAuthFlow(
+      "Facebook",
+      startFacebookOAuthFlow,
+      signOut,
+      setLoadingProvider,
+    );
+  const onPressApple = () =>
+    handleAuthFlow("Apple", startAppleOAuthFlow, signOut, setLoadingProvider);
 
   return (
     <View style={styles.container}>
