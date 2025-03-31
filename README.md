@@ -11,24 +11,37 @@
 ## 🚀 Funcionalidades
 
 ✔️ **Interactive Map** with nearby charging stations
+
 ✔️ **Location search** to find chargers in the area
+
 ✔️ **Navigation Integration** via Google Maps or Apple Maps
-✔️ **Favorites** for quick access to frenquently used stations
+
+✔️ **Favorites** for quick access to frequently used stations
+
 ✔️ **Station details** with location photo, name, address, and available connector count
-✔️ **User profile* with personalized preferences
+
+✔️ **User profile** with personalized preferences
+
 ✔️ **Secure Authentication** to store preferences
+
 ✔️ **Intuitive Interface** for easy use while driving
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-🔹 **Framework:** React Native
+🔹 **Framework:** React Native 
+
 🔹 **Platform:** Expo
+
 🔹 **Maps:** Google Places API
+
 🔹 **Navigation:** Integration with Google Maps and Apple Maps
+
 🔹 **Authentication:** Clerk
+
 🔹 **Database:** Firebase Firestore
+
 🔹 **Location:** Geolocation Services
 
 ---
