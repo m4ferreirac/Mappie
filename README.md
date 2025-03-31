@@ -1,8 +1,8 @@
-# 🔌 Mappie - Localizador de Carregadores para Veículos Elétricos
+# 🔌 Mappie - Eletric Vehicle Charger Locator
 
-**Realizado por:** João Ferreira nº2024501, Pedro Aleixo nº2023349
+**Created by:** João Ferreira nº2024501, Pedro Aleixo nº2023349
 
-**Mappie** é uma aplicação mobile que ajuda utilizadores a encontrar facilmente estações de carregamento para veículos elétricos próximas ou em locais específicos.
+**Mappie** is a mobile application that helps users easily find nearby charging stations for electric vehicles or in specific locations.
 
 <p align="center">
   <img src="screenshots/main.webp" alt="Principal" width="500"/>
@@ -10,30 +10,30 @@
 
 ## 🚀 Funcionalidades
 
-✔️ **Mapa Interativo** com estações de carregamento próximas  
-✔️ **Pesquisa de Locais** para encontrar carregadores em qualquer área  
-✔️ **Integração com Navegação** via Google Maps ou Apple Maps  
-✔️ **Favoritos** para acesso rápido às estações mais utilizadas  
-✔️ **Detalhes de Estações** com foto do local, nome, endereço e número de conectores disponíveis  
-✔️ **Perfil de Utilizador** com preferências personalizadas  
-✔️ **Autenticação Segura** para guardar suas preferências  
-✔️ **Interface Intuitiva** para fácil utilização enquanto dirige  
+✔️ **Interactive Map** with nearby charging stations
+✔️ **Location search** to find chargers in the area
+✔️ **Navigation Integration** via Google Maps or Apple Maps
+✔️ **Favorites** for quick access to frenquently used stations
+✔️ **Station details** with location photo, name, address, and available connector count
+✔️ **User profile* with personalized preferences
+✔️ **Secure Authentication** to store preferences
+✔️ **Intuitive Interface** for easy use while driving
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-🔹 **Framework:** React Native  
-🔹 **Plataforma:** Expo  
-🔹 **Mapas:** Google Places API  
-🔹 **Navegação:** Integração com Google Maps e Apple Maps  
-🔹 **Autenticação:** Clerk  
-🔹 **Base de Dados:** Firebase Firestore  
-🔹 **Localização:** Serviços de Geolocalização  
+🔹 **Framework:** React Native
+🔹 **Platform:** Expo
+🔹 **Maps:** Google Places API
+🔹 **Navigation:** Integration with Google Maps and Apple Maps
+🔹 **Authentication:** Clerk
+🔹 **Database:** Firebase Firestore
+🔹 **Location:** Geolocation Services
 
 ---
 
-## 📦 Clonar o Repositório
+## 📦 Clone the Repository
 
 ```bash
 git clone https://github.com/m4ferreirac/Mappie.git
