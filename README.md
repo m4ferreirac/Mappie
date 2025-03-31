@@ -8,7 +8,7 @@
   <img src="screenshots/main.webp" alt="Principal" width="500"/>
 </p>
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
 ✔️ **Interactive Map** with nearby charging stations
 
@@ -28,7 +28,7 @@
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technologies Used
 
 🔹 **Framework:** React Native 
 
