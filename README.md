@@ -1,7 +1,5 @@
 # 🔌 Mappie - Eletric Vehicle Charger Locator
 
-**Created by:** João Ferreira nº2024501, Pedro Aleixo nº2023349
-
 **Mappie** is a mobile application that helps users easily find nearby charging stations for electric vehicles or in specific locations.
 
 <p align="center">
