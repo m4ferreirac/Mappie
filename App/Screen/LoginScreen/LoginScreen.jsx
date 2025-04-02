@@ -13,7 +13,7 @@ import * as WebBrowser from "expo-web-browser";
 import { handleAuthFlow } from "../../Utils/Utils";
 import Colors from "../../Utils/Colors";
 import { useOAuth, useAuth } from "@clerk/clerk-expo";
-import { useWarmUpBrowser } from "../../../hooks/warmUpBrowser";
+import { useWarmUpBrowser } from "../../hooks/warmUpBrowser";
 import Header from "../HomeScreen/Header";
 import { FontAwesome } from "@expo/vector-icons";
 
